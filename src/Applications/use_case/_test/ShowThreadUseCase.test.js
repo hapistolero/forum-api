@@ -91,12 +91,15 @@ describe('ShowThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentsRepository();
 
-    mockThreadRepository.getThreadDetailById = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedThread));
-    mockCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedComments));
-    mockCommentRepository.getReplies = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedReplies));
+    mockThreadRepository.getThreadDetailById = jest.fn(
+      () => Promise.resolve(expectedThread),
+    );
+    mockCommentRepository.getCommentByThreadId = jest.fn(
+      () => Promise.resolve(expectedComments),
+    );
+    mockCommentRepository.getReplies = jest.fn(
+      () => Promise.resolve(expectedReplies),
+    );
 
     const showThreadUseCase = new ShowThreadUseCase({
       threadRepository: mockThreadRepository,
@@ -108,6 +111,7 @@ describe('ShowThreadUseCase', () => {
     expect(shownThread).toStrictEqual(expectedShownThread);
     expect(mockThreadRepository.getThreadDetailById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(useCasePayload);
-    expect(mockCommentRepository.getReplies).toBeCalledWith(useCasePayload, expectedComments[0].id);
+    expect(mockCommentRepository.getReplies).toBeCalledWith(useCasePayload,
+      [expectedComments[0].id, expectedComments[1].id]);
   });
 });

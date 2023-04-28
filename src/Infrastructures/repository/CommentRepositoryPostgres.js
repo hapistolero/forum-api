@@ -24,7 +24,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return new CreatedComment({ ...result.rows[0] });
+    return new CreatedComment(result.rows[0]);
   }
 
   async getCommentById(id) {
@@ -36,7 +36,9 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    await this.verifyIsCommentExist(id);
+    if (result.rowCount < 1) {
+      throw new NotFoundError('comment tidak ditemukan');
+    }
     return result.rows[0];
   }
 
@@ -74,9 +76,6 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const resultComments = await this._pool.query(query);
 
-    if (!resultComments.rowCount) {
-      throw new NotFoundError('comment tidak ditemukan');
-    }
     return resultComments.rows;
   }
 
@@ -130,7 +129,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       text: ` select comments.id, users.username, comments.date, comments.content, comments.is_delete as isDeleted, reply_to as reply_to
                  from comments 
                  join users on comments.owner_id = users.id
-                 where thread_id = $1 and reply_to=$2
+                 where thread_id = $1 and reply_to=ANY($2::text[])
                  order by comments.date`,
       values: [threadId, commentId],
     };

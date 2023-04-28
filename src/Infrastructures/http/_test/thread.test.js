@@ -91,9 +91,9 @@ describe('/threads endpoint', () => {
 
   describe('when GET /threads/{threadId}', () => {
     it('should response 200 and show thread by id', async () => {
-      const threadId = 'thread-123';
+      const threadId = 'thread-125';
       await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: threadId, owner: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, userId: 'user-123' });
       const server = await createServer(container);
 
       const response = await server.inject({

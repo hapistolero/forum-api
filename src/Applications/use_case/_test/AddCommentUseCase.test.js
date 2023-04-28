@@ -12,39 +12,29 @@ describe('AddCommentUseCase', () => {
       userId: 'user-123',
     };
 
-    const expectedNewComment = new CreatedComment({
-      id: 'comment-123',
-      content: useCasePayload.content,
-      owner: useCasePayload.userId,
-    });
-
     const mockCommentRepository = new CommentsRepository();
     const mockThreadRepository = new ThreadRepository();
 
     mockThreadRepository.verifyThreadIsExist = jest.fn(() => Promise.resolve());
-    mockCommentRepository.createComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(new CreatedComment({
-        id:'comment-123',
-        content: useCasePayload.content,
-        owner:useCasePayload.userId
-      })));
+    mockCommentRepository.createComment = jest.fn(() => Promise.resolve(new CreatedComment({
+      id: 'comment-123',
+      content: useCasePayload.content,
+      owner: useCasePayload.userId,
+    })));
 
     const addCommentUseCase = new AddCommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
 
-  
-
     const createdComment = await addCommentUseCase.execute(useCasePayload);
 
-
     expect(createdComment).toStrictEqual(new CreatedComment({
-      id:'comment-123',
+      id: 'comment-123',
       content: useCasePayload.content,
-      owner:useCasePayload.userId
+      owner: useCasePayload.userId,
     }));
-    
+
     expect(mockThreadRepository.verifyThreadIsExist).toBeCalledWith(useCasePayload.threadId);
     expect(mockCommentRepository.createComment)
       .toBeCalledWith(new CreateNewComment(useCasePayload));

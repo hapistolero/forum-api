@@ -32,7 +32,7 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
       const accessToken = await ServerTestHelper.getAccessToken(userId);
 
       await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
-      await CommentTableTestHelper.addComment({ id: commentId, threadId });
+      await CommentTableTestHelper.addComment({ id: commentId, userId, threadId });
 
       const server = await createServer(container);
 
@@ -68,7 +68,7 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
         const accessToken = await ServerTestHelper.getAccessToken(userId);
 
         await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
-        await CommentTableTestHelper.addComment({ id: commentId, threadId });
+        await CommentTableTestHelper.addComment({ id: commentId, userId, threadId });
 
         const server = await createServer(container);
 

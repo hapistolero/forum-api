@@ -47,7 +47,7 @@ describe('ThreadRepositoryPostgres', () => {
           .rejects.toThrowError(NotFoundError);
       });
 
-      it('should not throw NotForund when thread found by id', async () => {
+      it('should not throw NotFoundError when thread found by id', async () => {
         const threadId = 'thread-123';
         await UsersTableTestHelper.addUser({ id: 'user-123' });
         await ThreadsTableTestHelper.addThread({ id: threadId });

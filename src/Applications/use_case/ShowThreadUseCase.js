@@ -8,15 +8,12 @@ class ShowThreadUseCase {
   async execute(useCasePayload) {
     const thread = await this._threadRepository.getThreadDetailById(useCasePayload);
     const comments = await this._commentRepository.getCommentByThreadId(useCasePayload);
-
-    const repliesPromises = comments.map(
-      (comment) => this._commentRepository.getReplies(useCasePayload, comment.id),
+    const commentId = comments.map(
+      (comment) => (comment.id),
     );
-
-    const replies = await Promise.all(repliesPromises);
-
+    const getReplies = await this._commentRepository.getReplies(useCasePayload, commentId);
     const validatedComments = this._validateDeletedComment(comments);
-    const validatedReplies = this._validateDeletedReplies(replies);
+    const validatedReplies = this._validateDeletedReplies(getReplies);
 
     const commentWithReplies = this._addReplyToComment(validatedComments, validatedReplies);
 
@@ -38,13 +35,11 @@ class ShowThreadUseCase {
   }
 
   _validateDeletedReplies(replies) {
-    for (const replyArray of replies) {
-      for (const reply of replyArray) {
-        if (reply.isdeleted === true) {
-          reply.content = '**balasan telah dihapus**';
-        }
-        delete reply.isdeleted;
+    for (const reply of replies) {
+      if (reply.isdeleted === true) {
+        reply.content = '**balasan telah dihapus**';
       }
+      delete reply.isdeleted;
     }
     return replies;
   }
@@ -52,9 +47,8 @@ class ShowThreadUseCase {
   _addReplyToComment(comments, replies) {
     for (const comment of comments) {
       comment.replies = [];
-
-      for (const replyArray of replies) {
-        for (const reply of replyArray) {
+      if (Array.isArray(replies)) { // add a check for iterable value
+        for (const reply of replies) {
           if (reply.reply_to === comment.id) {
             comment.replies.push(reply);
           }

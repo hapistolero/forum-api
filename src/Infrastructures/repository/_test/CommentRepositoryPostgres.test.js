@@ -10,13 +10,18 @@ const NewReply = require('../../../Domains/comments/entities/NewReply');
 const threadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
-describe('UserRepositoryPostgres', () => {
-  afterEach(async () => {
+describe('CommentRepositoryPostgres', () => {
+  afterAll(async () => {
     await UsersTableTestHelper.cleanTable();
+    await threadsTableTestHelper.cleanTable();
+    await CommentTableTestHelper.cleanTable();
+    await pool.end();
   });
 
-  afterAll(async () => {
-    await pool.end();
+  afterEach(async () => {
+    await UsersTableTestHelper.cleanTable();
+    await threadsTableTestHelper.cleanTable();
+    await CommentTableTestHelper.cleanTable();
   });
 
   describe('addComment function', () => {
@@ -81,7 +86,7 @@ describe('UserRepositoryPostgres', () => {
       const threadId = 'thread-123';
       const commentId = 'comment-192091331';
       await UsersTableTestHelper.addUser({ id: userId, username: 'threadusernew' });
-      await ThreadsTableTestHelper.addThread({ id: userId, username: 'thread-user' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, username: 'thread-user' });
       await CommentTableTestHelper.addComment({
         id: commentId, content: 'oke fine', threadId, userId,
       });
@@ -106,7 +111,7 @@ describe('UserRepositoryPostgres', () => {
       const threadId = 'thread-123';
       const commentId = 'comment-1091028';
       await UsersTableTestHelper.addUser({ id: userId, username: 'user-name' });
-      await ThreadsTableTestHelper.addThread({ id: userId, username: 'user-name' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, username: 'user-name' });
       await CommentTableTestHelper.addComment({
         id: commentId, content: 'yoman', threadId, userId,
       });
@@ -120,7 +125,7 @@ describe('UserRepositoryPostgres', () => {
       const threadId = 'thread-123';
       const commentId = 'comment-1920913312';
       await UsersTableTestHelper.addUser({ id: userId, username: 'threadusernew' });
-      await ThreadsTableTestHelper.addThread({ id: userId, username: 'thread-user' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, username: 'thread-user' });
       await CommentTableTestHelper.addComment({
         id: commentId, content: 'oke fine', threadId, userId,
       });
@@ -170,9 +175,10 @@ describe('UserRepositoryPostgres', () => {
 
     it('should delete comment by id and return success correctly', async () => {
       const commentId = 'comment-192092091';
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
+      const userId = 'user-123';
+      await UsersTableTestHelper.addUser({ id: userId });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
-      await CommentTableTestHelper.addComment({ id: commentId });
+      await CommentTableTestHelper.addComment({ id: commentId, userId });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await commentRepositoryPostgres.deleteCommentById(commentId);
@@ -240,32 +246,29 @@ describe('UserRepositoryPostgres', () => {
     });
   });
   describe('getCommentByThreadId', () => {
-    it('should throw not found error when comment is not exist by thread id', async () => {
+    it('should not throw not found error when comment is not exist by thread id', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      await expect(commentRepositoryPostgres.getCommentByThreadId('unknown')).rejects.toThrow(NotFoundError);
+      await expect(commentRepositoryPostgres.getCommentByThreadId('unknown')).resolves.not.toThrow();
     });
     it('should not throw anything when found', async () => {
       const userId = 'user-123';
       const threadId = 'thread-124';
       const commentId = 'comment-192091321';
+      const date = new Date();
       await UsersTableTestHelper.addUser({ id: userId, username: 'threadusernew' });
-      await ThreadsTableTestHelper.addThread({ id: userId, username: 'thread-user' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, username: 'thread-user' });
       await CommentTableTestHelper.addComment({
-        id: commentId, content: 'oke fine', threadId, userId,
+        id: commentId, content: 'oke fine', date, threadId, userId,
       });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       const foundedComment = await commentRepositoryPostgres.getCommentByThreadId(threadId);
-      const {
-        date, isdeleted,
-      } = foundedComment[0];
-
       expect(foundedComment).toStrictEqual([{
         id: commentId,
         username: 'threadusernew',
         date,
         content: 'oke fine',
-        isdeleted,
+        isdeleted: false,
       }]);
     });
   });
@@ -275,25 +278,27 @@ describe('UserRepositoryPostgres', () => {
       const replyId = 'reply-123e4';
       const userId = 'user-123';
       const threadId = 'thread-132';
-      const commentId = 'comment-19209a1321';
+      const commentId = ['comment-19209a1321'];
+
+      const date = new Date();
 
       await UsersTableTestHelper.addUser({ id: userId, username: 'threadusernew1' });
-      await ThreadsTableTestHelper.addThread({ id: userId, username: 'threadusernew1' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, username: 'threadusernew1' });
       await CommentTableTestHelper.addComment({
-        id: commentId, content: 'oke fine', threadId, userId,
+        id: 'comment-19209a1321', content: 'oke fine', date, threadId, userId,
       });
       await CommentTableTestHelper.addReply({
-        id: replyId,
+        id: 'reply-123e4',
         content: 'wuhan',
+        date,
         threadId,
-        commentId,
+        commentId: 'comment-19209a1321',
         userId,
       });
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       const replies = await commentRepositoryPostgres.getReplies(threadId, commentId);
-      const { date, isdeleted } = replies[0];
 
       expect(replies).toStrictEqual([
         {
@@ -301,8 +306,8 @@ describe('UserRepositoryPostgres', () => {
           username: 'threadusernew1',
           date,
           content: 'wuhan',
-          isdeleted,
-          reply_to: commentId,
+          isdeleted: false,
+          reply_to: 'comment-19209a1321',
 
         },
       ]);
@@ -317,19 +322,23 @@ describe('UserRepositoryPostgres', () => {
     it('should return reply by thread id correctly', async () => {
       const replyId = 'reply-19102920';
       const userId = 'user-123';
-      const threadId = 'thread-129';
+      const threadId = 'thread-110919';
       const commentId = 'comment-890';
+      const date = new Date('2023-04-27T01:51:52.794');
+      const date2 = new Date('2023-04-27T03:51:52.794');
+      // const dateString = date.toISOString();
 
       await UsersTableTestHelper.addUser({ id: userId, username: 'threadusernew1' });
       await ThreadsTableTestHelper.addThread({ id: threadId, username: 'threadusernew1' });
       await CommentTableTestHelper.addComment({
-        id: commentId, content: 'oke fine', threadId, userId,
+        id: commentId, content: 'wuhan', date, threadId, userId,
       });
 
       await CommentTableTestHelper.addReply({
-        id: 'reply-19102920',
+        id: replyId,
         content: 'wuhan',
-        threadId: 'thread-129',
+        date: date2,
+        threadId,
         userId: 'user-123',
         commentId: 'comment-890',
 
@@ -340,26 +349,25 @@ describe('UserRepositoryPostgres', () => {
       const replies = await commentRepositoryPostgres.getRepliesByThreadId(threadId);
 
       // eslint-disable-next-line camelcase
-      const { date } = replies[0];
-      const { date: date1 } = replies[1];
 
       expect(replies).toStrictEqual([
         {
           id: commentId,
           username: 'threadusernew1',
           date,
-          content: 'oke fine',
+          content: 'wuhan',
           is_delete: false,
 
         },
         {
           id: replyId,
           username: 'threadusernew1',
-          date: date1,
+          date: date2,
           content: 'wuhan',
           is_delete: false,
 
         },
+
       ]);
     });
   });

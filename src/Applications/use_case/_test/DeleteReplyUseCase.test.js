@@ -17,11 +17,10 @@ describe('DeleteReplyUseCase', () => {
 
     mockThreadRepository.verifyThreadIsExist = jest.fn(() => Promise.resolve());
     mockCommentRepository.verifyIsCommentExist = jest.fn(() => Promise.resolve());
-    mockCommentRepository.getCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve({
-        id: useCasePayload.replyId,
-        owner: useCasePayload.userId,
-      }));
+    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve({
+      id: useCasePayload.replyId,
+      owner: useCasePayload.userId,
+    }));
 
     mockCommentRepository.deleteCommentById = jest.fn(() => Promise.resolve());
 
@@ -50,8 +49,7 @@ describe('DeleteReplyUseCase', () => {
 
     mockThreadRepository.verifyThreadIsExist = jest.fn(() => Promise.resolve());
     mockCommentRepository.verifyIsCommentExist = jest.fn(() => Promise.resolve());
-    mockCommentRepository.getCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve({ id: 'comment-xxx', owner: 'user-xxx' }));
+    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve({ id: 'comment-xxx', owner: 'user-xxx' }));
     mockCommentRepository.deleteCommentById = jest.fn(() => Promise.resolve());
 
     const deleteReplyUseCase = new DeleteReplyUseCase({
