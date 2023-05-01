@@ -23,4 +23,4 @@ jobs:
           npm install
           npm run migrate up
           pm2 start
-          ~/.pm2 restart forum-api
+          /usr/bin/pm2 restart forum-api
