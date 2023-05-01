@@ -74,7 +74,7 @@ describe('ThreadRepositoryPostgres', () => {
           title: 'Thread Title',
           body: 'Thread Body',
           owner: 'user-123',
-          date: 'fake date',
+          date: new Date(),
         };
 
         const userData = {
