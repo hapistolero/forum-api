@@ -74,7 +74,7 @@ describe('ThreadRepositoryPostgres', () => {
           title: 'Thread Title',
           body: 'Thread Body',
           owner: 'user-123',
-          date: new Date(),
+          date: '2023-04-27T01:51:52.794+07:00',
         };
 
         const userData = {

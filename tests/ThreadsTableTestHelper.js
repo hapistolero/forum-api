@@ -4,7 +4,7 @@ const threadsTableTestHelper = {
 
   async addThread({
     id = 'thread-123', title = 'Thread Title', body = 'Thread Body',
-    owner = 'user-123', date = new Date(),
+    owner = 'user-123', date = '2023-04-27 01:36:57.923284+07',
   }) {
     const query = {
       text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5)',
