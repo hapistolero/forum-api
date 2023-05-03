@@ -89,13 +89,12 @@ describe('ThreadRepositoryPostgres', () => {
         const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
 
         const thread = await threadRepositoryPostgres.getThreadDetailById(threadData.id);
-        console.log(thread.date)
 
         expect(thread).toBeDefined();
         expect(thread.id).toEqual(threadData.id);
         expect(thread.title).toEqual(threadData.title);
         expect(thread.body).toEqual(threadData.body);
-        expect(thread.date).toEqual(threadData.date);
+        expect(new Date(thread.date)).toEqual(new Date(threadData.date));
         expect(thread.username).toEqual(threadData.owner);
       });
     });
