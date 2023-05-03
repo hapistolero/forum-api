@@ -2,7 +2,7 @@ const routes = (handler) => ([
   {
     method: 'GET',
     path: '/',
-    handler: () => ({value:'Hello ges!'})
+    handler: () => ({ value: 'Hello ges!' }),
   },
   {
     method: 'POST',

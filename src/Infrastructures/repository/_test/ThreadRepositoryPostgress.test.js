@@ -74,7 +74,7 @@ describe('ThreadRepositoryPostgres', () => {
           title: 'Thread Title',
           body: 'Thread Body',
           owner: 'user-123',
-          date: '2023-04-27T01:51:52.794+07:00',
+          date: '2023-04-27T01:51:52.794Z',
         };
 
         const userData = {
@@ -89,6 +89,7 @@ describe('ThreadRepositoryPostgres', () => {
         const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
 
         const thread = await threadRepositoryPostgres.getThreadDetailById(threadData.id);
+        console.log(thread.date)
 
         expect(thread).toBeDefined();
         expect(thread.id).toEqual(threadData.id);
