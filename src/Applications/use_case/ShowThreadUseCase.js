@@ -47,13 +47,12 @@ class ShowThreadUseCase {
   _addReplyToComment(comments, replies) {
     for (const comment of comments) {
       comment.replies = [];
-      if (Array.isArray(replies)) { // add a check for iterable value
-        for (const reply of replies) {
-          if (reply.reply_to === comment.id) {
-            comment.replies.push(reply);
-          }
-          delete reply.reply_to;
+
+      for (const reply of replies) {
+        if (reply.reply_to === comment.id) {
+          comment.replies.push(reply);
         }
+        delete reply.reply_to;
       }
     }
     return comments;
